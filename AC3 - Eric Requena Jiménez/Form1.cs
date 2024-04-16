@@ -1,12 +1,12 @@
-using System.Windows.Forms;
-using System.Xml.Serialization;
+using AC3___Eric_Requena_Jiménez;
 using classComarca;
-
 
 namespace AC3___Eric_Requena_Jiménez
 {
     public partial class Form1 : Form
     {
+        private int lineaActual = 0;
+        private List<Comarca> comarcas;
 
         public Form1()
         {
@@ -23,12 +23,15 @@ namespace AC3___Eric_Requena_Jiménez
             }
             ChargeComboBoxComarca();
             Cuadro.CellClick += DataGridView1_CellClick;
+
         }
+
         private void CargarDatosCSV()
         {
+
             string rutaArchivo = @"..\..\..\Consum_d_aigua_a_Catalunya_per_comarques_20240402 (1).csv";
-            Cuadro.DataSource = Helper.LlegirDadesCSV(rutaArchivo);
-            Cuadro.Columns[1].Visible = false;
+            comarcas = Helper.LlegirDadesCSV(rutaArchivo);
+            MostrarSiguientes10Lineas();
 
         }
 
@@ -275,6 +278,31 @@ namespace AC3___Eric_Requena_Jiménez
                 e.Cancel = false;
                 Void.SetError(TotalText, null);
             }
+        }
+
+        private void MostrarSiguientes10Lineas()
+        {
+            int lineasAMostrar = 10;
+            var lineasRestantes = comarcas.Skip(lineaActual).Take(lineasAMostrar).ToList();
+            Cuadro.DataSource = lineasRestantes;
+            Cuadro.Columns[1].Visible = false;
+            lineaActual += lineasAMostrar;
+        }
+
+
+        private void BTNAfter_Click_1(object sender, EventArgs e)
+        {
+            if (lineaActual >= 10)
+            {
+                lineaActual -= 10;
+                MostrarSiguientes10Lineas();
+            }
+
+        }
+
+        private void BTNNext_Click_1(object sender, EventArgs e)
+        {
+            MostrarSiguientes10Lineas();
         }
     }
 }

@@ -64,6 +64,8 @@
             Positive = new ErrorProvider(components);
             Number = new ErrorProvider(components);
             Void = new ErrorProvider(components);
+            BTNNext = new Button();
+            BTNAfter = new Button();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)Cuadro).BeginInit();
@@ -396,7 +398,7 @@
             // Cuadro
             // 
             Cuadro.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            Cuadro.Location = new Point(73, 512);
+            Cuadro.Location = new Point(64, 482);
             Cuadro.Margin = new Padding(3, 4, 3, 4);
             Cuadro.Name = "Cuadro";
             Cuadro.RowHeadersWidth = 51;
@@ -415,12 +417,34 @@
             // 
             Void.ContainerControl = this;
             // 
+            // BTNNext
+            // 
+            BTNNext.Location = new Point(224, 823);
+            BTNNext.Name = "BTNNext";
+            BTNNext.Size = new Size(94, 29);
+            BTNNext.TabIndex = 17;
+            BTNNext.Text = "-->";
+            BTNNext.UseVisualStyleBackColor = true;
+            BTNNext.Click += BTNNext_Click_1;
+            // 
+            // BTNAfter
+            // 
+            BTNAfter.Location = new Point(106, 823);
+            BTNAfter.Name = "BTNAfter";
+            BTNAfter.Size = new Size(94, 29);
+            BTNAfter.TabIndex = 18;
+            BTNAfter.Text = "<--";
+            BTNAfter.UseVisualStyleBackColor = true;
+            BTNAfter.Click += BTNAfter_Click_1;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoValidate = AutoValidate.Disable;
-            ClientSize = new Size(1234, 837);
+            ClientSize = new Size(1268, 878);
+            Controls.Add(BTNAfter);
+            Controls.Add(BTNNext);
             Controls.Add(Cuadro);
             Controls.Add(groupBox2);
             Controls.Add(button2);
@@ -480,5 +504,7 @@
         private ErrorProvider Positive;
         private ErrorProvider Number;
         private ErrorProvider Void;
+        private Button BTNAfter;
+        private Button BTNNext;
     }
 }
