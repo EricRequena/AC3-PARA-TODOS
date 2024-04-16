@@ -56,13 +56,26 @@ namespace AC3___Eric_Requena_Jiménez
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
-                // Obtén la comarca correspondiente a la fila seleccionada
-                int Poblacion = Convert.ToInt32(Cuadro.Rows[e.RowIndex].Cells[3]);
+                // Obtén el valor de la celda correspondiente a la población
+                object poblacionObj = Cuadro.Rows[e.RowIndex].Cells[3].Value;
 
-                // Ejecuta la función IdentificarComarquesPoblacioSuperior y actualiza los labels
-                IdentificarComarquesPoblacioSuperior(Poblacion);
+                // Verifica si el valor no es nulo y es convertible a entero
+                if (poblacionObj != null && poblacionObj != DBNull.Value)
+                {
+                    // Intenta convertir el valor a entero
+                    if (int.TryParse(poblacionObj.ToString(), out int poblacion))
+                    {
+                        // Ejecuta la función IdentificarComarquesPoblacioSuperior y actualiza los labels
+                        IdentificarComarquesPoblacioSuperior(poblacion);
+                        return; // Sale del método después de la ejecución exitosa
+                    }
+                }
+
+                // Si no se pudo obtener la población válida, muestra un mensaje de error
+                MessageBox.Show("No se pudo obtener la población válida de la celda seleccionada.");
             }
         }
+
 
         private void IdentificarComarquesPoblacioSuperior(int poblacion)
         {
