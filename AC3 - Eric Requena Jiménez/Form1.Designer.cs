@@ -80,7 +80,6 @@
             Gestioner.Size = new Size(295, 20);
             Gestioner.TabIndex = 0;
             Gestioner.Text = "Gestió de dades demogràfiques de regions";
-            Gestioner.Click += Gestio_Click;
             // 
             // Year
             // 
@@ -90,7 +89,6 @@
             Year.Size = new Size(34, 20);
             Year.TabIndex = 1;
             Year.Text = "Any\r\n";
-            Year.Click += Year_Click;
             // 
             // Comarca
             // 
@@ -174,7 +172,6 @@
             PoblacióText.Name = "PoblacióText";
             PoblacióText.Size = new Size(134, 27);
             PoblacióText.TabIndex = 15;
-            PoblacióText.TextChanged += PoblacióText_TextChanged;
             PoblacióText.Validating += PoblacióText_Validating;
             // 
             // ConsumText
@@ -285,7 +282,6 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Estadístiques";
             groupBox2.UseCompatibleTextRendering = true;
-            groupBox2.Enter += groupBox2_Enter;
             // 
             // LBLCMB
             // 
@@ -326,7 +322,6 @@
             LBLPoblacio.Size = new Size(58, 20);
             LBLPoblacio.TabIndex = 19;
             LBLPoblacio.Text = "label11";
-            LBLPoblacio.Click += label11_Click;
             // 
             // label10
             // 
@@ -407,7 +402,6 @@
             Cuadro.RowHeadersWidth = 51;
             Cuadro.Size = new Size(1182, 312);
             Cuadro.TabIndex = 16;
-            Cuadro.CellContentClick += dataGridView1_CellContentClick_1;
             // 
             // Positive
             // 
