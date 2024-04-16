@@ -2,18 +2,19 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using classComarca;
 
+
 namespace AC3___Eric_Requena_Jiménez
 {
     public partial class Form1 : Form
     {
-        private List<Comarca> comarques;
+
         public Form1()
         {
             InitializeComponent();
             LBLPoblacio.Text = "";
-            label12.Text = "";
-            label13.Text = "";
-            label14.Text = "";
+            LBLCM.Text = "";
+            LBLCMA.Text = "";
+            LBLCMB.Text = "";
             CargarDatosCSV();
             string rutaXML = @"..\..\..\Consum_d_aigua_a_Catalunya_per_comarques_20240402 (1).xml";
             if (!File.Exists(rutaXML))
@@ -22,17 +23,12 @@ namespace AC3___Eric_Requena_Jiménez
             }
             ChargeComboBoxComarca();
             Cuadro.CellClick += DataGridView1_CellClick;
-
-
-
         }
-
-
-
         private void CargarDatosCSV()
         {
             string rutaArchivo = @"..\..\..\Consum_d_aigua_a_Catalunya_per_comarques_20240402 (1).csv";
-            Cuadro.DataSource = Helper.ReadCSV(rutaArchivo);
+            Cuadro.DataSource = Helper.LlegirDadesCSV(rutaArchivo);
+            Cuadro.Columns[1].Visible = false;
 
         }
 
@@ -54,70 +50,27 @@ namespace AC3___Eric_Requena_Jiménez
 
         private void DataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            int n = e.RowIndex;
+            if (n != -1)
             {
-                // Obtén el valor de la celda correspondiente a la población
-                object poblacionObj = Cuadro.Rows[e.RowIndex].Cells[3].Value;
+                DataGridViewRow row = Cuadro.Rows[n];
+                List<Comarca> comarcas = Helper.LlegirDadesCSV(@"..\..\..\Consum_d_aigua_a_Catalunya_per_comarques_20240402 (1).csv");
 
-                // Verifica si el valor no es nulo y es convertible a entero
-                if (poblacionObj != null && poblacionObj != DBNull.Value)
-                {
-                    // Intenta convertir el valor a entero
-                    if (int.TryParse(poblacionObj.ToString(), out int poblacion))
-                    {
-                        // Ejecuta la función IdentificarComarquesPoblacioSuperior y actualiza los labels
-                        IdentificarComarquesPoblacioSuperior(poblacion);
-                        return; // Sale del método después de la ejecución exitosa
-                    }
-                }
+                int poblacio = Convert.ToInt32(row.Cells[3].Value);
+                LBLPoblacio.Text = (poblacio > 20000) ? "SI" : "NO";
 
-                // Si no se pudo obtener la población válida, muestra un mensaje de error
-                MessageBox.Show("No se pudo obtener la población válida de la celda seleccionada.");
+                string comarca = row.Cells[2].Value.ToString();
+                var filterComarcasName = comarcas.Where(c => c.NomComarca == comarca);
+                double consum = filterComarcasName.Average(c => c.ConsumDomesticPerCapita);
+                LBLCM.Text = $"{consum:N0}";
+
+                double consumDomesticPerCapita = Convert.ToDouble(row.Cells[7].Value);
+                var filterComarcaALT = filterComarcasName.OrderByDescending(c => c.ConsumDomesticPerCapita).First();
+                LBLCMA.Text = filterComarcaALT.ConsumDomesticPerCapita == consumDomesticPerCapita ? "SI" : "NO";
+
+                var filterComarcaBAX = filterComarcasName.OrderByDescending(c => c.ConsumDomesticPerCapita).Last();
+                LBLCMB.Text = filterComarcaBAX.ConsumDomesticPerCapita == consumDomesticPerCapita ? "SI" : "NO";
             }
-        }
-
-
-        private void IdentificarComarquesPoblacioSuperior(int poblacion)
-        {
-            if (poblacion != null)
-            {
-                LBLPoblacio.Text = (poblacion > 20000) ? "SI" : "NO";
-            }
-            else
-            {
-                // Manejar el caso en que comarca sea null
-                LBLPoblacio.Text = "No hay datos de poblacion";
-            }
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Gestio_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Year_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label13_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label11_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -131,14 +84,197 @@ namespace AC3___Eric_Requena_Jiménez
             ConsumText.Text = "";
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+
+        private void button1_Click(object sender, EventArgs e)
         {
+            if (this.ValidateChildren())
+            {
+                List<Comarca> comarques = new List<Comarca>() {
+                    new Comarca
+                    {
+                        Any = Convert.ToInt32(AnyText.Text),
+                        CodiComarca = Convert.ToInt32(ComarcaText.SelectedValue),
+                        NomComarca = ComarcaText.Text,
+                        Poblacio = Convert.ToInt32(PoblacióText.Text),
+                        DomesticXarxa = Convert.ToInt32(DomésticText.Text),
+                        ActivitatsEconomiques = Convert.ToInt32(ActivitatsText.Text),
+                        Total = Convert.ToInt32(TotalText.Text),
+                        ConsumDomesticPerCapita = Convert.ToDouble(ConsumText.Text)
+                    }
+                };
+
+                Helper.AppendCsv(comarques);
+
+                CargarDatosCSV();
+
+            }
+        }
+
+        private void AnyText_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(AnyText.Text))
+            {
+                e.Cancel = true;
+                AnyText.Focus();
+                Void.SetError(AnyText, "Slecciona un año");
+            }
+            else
+            {
+                e.Cancel = false;
+                Void.SetError(AnyText, null);
+            }
+        }
+
+        private void ComarcaText_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+            if (string.IsNullOrEmpty(AnyText.Text))
+            {
+                e.Cancel = true;
+                AnyText.Focus();
+                Void.SetError(AnyText, "Selecciona una Comarca");
+            }
+            else
+            {
+                e.Cancel = false;
+                Void.SetError(AnyText, null);
+            }
 
         }
 
-        private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
+        private void PoblacióText_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (string.IsNullOrEmpty(PoblacióText.Text))
+            {
+                e.Cancel = true;
+                PoblacióText.Focus();
+                Void.SetError(PoblacióText, "Introduce una población");
+            }
+            else if (!int.TryParse(PoblacióText.Text, out int result))
+            {
+                e.Cancel = true;
+                PoblacióText.Focus();
+                Void.SetError(PoblacióText, "Introduce un número");
+            }
+            else if (int.Parse(PoblacióText.Text) < 0)
+            {
+                e.Cancel = true;
+                PoblacióText.Focus();
+                Void.SetError(PoblacióText, "Introduce un número positivo");
+            }
+            else
+            {
+                e.Cancel = false;
+                Void.SetError(PoblacióText, null);
+            }
+        }
 
+        private void DomésticText_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(DomésticText.Text))
+            {
+                e.Cancel = true;
+                DomésticText.Focus();
+                Void.SetError(DomésticText, "Introduce un número");
+            }
+            else if (!int.TryParse(DomésticText.Text, out int result))
+            {
+                e.Cancel = true;
+                DomésticText.Focus();
+                Void.SetError(DomésticText, "Introduce un número");
+            }
+            else if (int.Parse(DomésticText.Text) < 0)
+            {
+                e.Cancel = true;
+                DomésticText.Focus();
+                Void.SetError(DomésticText, "Introduce un número positivo");
+            }
+            else
+            {
+                e.Cancel = false;
+                Void.SetError(DomésticText, null);
+            }
+        }
+
+        private void ActivitatsText_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(ActivitatsText.Text))
+            {
+                e.Cancel = true;
+                ActivitatsText.Focus();
+                Void.SetError(ActivitatsText, "Introduce un número");
+            }
+            else if (!int.TryParse(ActivitatsText.Text, out int result))
+            {
+                e.Cancel = true;
+                ActivitatsText.Focus();
+                Void.SetError(ActivitatsText, "Introduce un número");
+            }
+            else if (int.Parse(ActivitatsText.Text) < 0)
+            {
+                e.Cancel = true;
+                ActivitatsText.Focus();
+                Void.SetError(ActivitatsText, "Introduce un número positivo");
+            }
+            else
+            {
+                e.Cancel = false;
+                Void.SetError(ActivitatsText, null);
+            }
+        }
+
+        private void ConsumText_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(ConsumText.Text))
+            {
+                e.Cancel = true;
+                ConsumText.Focus();
+                Void.SetError(ConsumText, "Introduce un número");
+            }
+            else if (!double.TryParse(ConsumText.Text, out double result))
+            {
+                e.Cancel = true;
+                ConsumText.Focus();
+                Void.SetError(ConsumText, "Introduce un número");
+            }
+            else if (double.Parse(ConsumText.Text) < 0)
+            {
+                e.Cancel = true;
+                ConsumText.Focus();
+                Void.SetError(ConsumText, "Introduce un número positivo");
+            }
+            else
+            {
+                e.Cancel = false;
+                Void.SetError(ConsumText, null);
+            }
+        }
+
+        private void TotalText_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TotalText.Text))
+            {
+                e.Cancel = true;
+                TotalText.Focus();
+                Void.SetError(TotalText, "Introduce un número");
+            }
+            else if (!int.TryParse(TotalText.Text, out int result))
+            {
+                e.Cancel = true;
+                TotalText.Focus();
+                Void.SetError(TotalText, "Introduce un número");
+            }
+            else if (int.Parse(TotalText.Text) < 0)
+            {
+                e.Cancel = true;
+                TotalText.Focus();
+                Void.SetError(TotalText, "Introduce un número positivo");
+            }
+            else
+            {
+                e.Cancel = false;
+                Void.SetError(TotalText, null);
+            }
         }
     }
 }
